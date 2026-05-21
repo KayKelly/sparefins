@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# AI context files — local only, not for the repo
+CLAUDE.md
+AGENTS.md
+
 # debug
 npm-debug.log*
 yarn-debug.log*

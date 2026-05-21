@@ -1,26 +1,140 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   SPAREFINS COLOUR PALETTE
+   Teal/sand brand, merged with shadcn's variable system.
+   shadcn components use --primary, --accent, etc.
+   Our custom components use --color-teal-* / --color-sand-* directly.
+   ============================================================ */
+
+@theme {
+  /* Teal scale */
+  --color-teal-50:  #f0fafa;
+  --color-teal-100: #ccefef;
+  --color-teal-200: #99dfdf;
+  --color-teal-300: #5cc8c8;
+  --color-teal-400: #2aadad;
+  --color-teal-500: #178f8f;
+  --color-teal-600: #0f7070;
+  --color-teal-700: #0b5555;
+  --color-teal-800: #073a3a;
+  --color-teal-900: #042020;
+
+  /* Sand scale */
+  --color-sand-50:  #faf9f7;
+  --color-sand-100: #f2efe9;
+  --color-sand-200: #e5ded3;
+  --color-sand-300: #d1c4b2;
+  --color-sand-400: #b8a48e;
+  --color-sand-500: #9e8670;
+  --color-sand-600: #7d6756;
+
+  /* Tokens not in shadcn's system */
+  --color-surface:      #ffffff;        /* white card surface */
+  --color-accent-hover: var(--color-teal-600);
 }
 
+/* shadcn maps Tailwind colour utilities to these CSS vars */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --font-sans:    var(--font-sans);
+
+  --color-background:        var(--background);
+  --color-foreground:        var(--foreground);
+  --color-card:              var(--card);
+  --color-card-foreground:   var(--card-foreground);
+  --color-popover:           var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary:           var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:         var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:             var(--muted);
+  --color-muted-foreground:  var(--muted-foreground);
+  --color-accent:            var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive:       var(--destructive);
+  --color-border:            var(--border);
+  --color-input:             var(--input);
+  --color-ring:              var(--ring);
+  --radius-sm:  calc(var(--radius) * 0.6);
+  --radius-md:  calc(var(--radius) * 0.8);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ============================================================
+   BRAND TOKENS — override shadcn's grey defaults with teal/sand
+   ============================================================ */
+:root {
+  /* Backgrounds */
+  --background:        oklch(0.985 0.004 75);  /* sand-50  */
+  --foreground:        oklch(0.13 0 0);         /* near-black */
+
+  --card:              oklch(1 0 0);
+  --card-foreground:   oklch(0.13 0 0);
+
+  --popover:           oklch(1 0 0);
+  --popover-foreground: oklch(0.13 0 0);
+
+  /* Primary = teal-600 (used by shadcn Button default variant) */
+  --primary:           oklch(0.44 0.09 196);   /* teal-600 */
+  --primary-foreground: oklch(1 0 0);
+
+  --secondary:         oklch(0.97 0.004 75);   /* sand-100 */
+  --secondary-foreground: oklch(0.13 0 0);
+
+  --muted:             oklch(0.97 0.004 75);   /* sand-100 */
+  --muted-foreground:  oklch(0.44 0 0);        /* grey-500-ish */
+
+  /* Accent = teal-500 (used by hover states etc.) */
+  --accent:            oklch(0.55 0.10 196);   /* teal-500 */
+  --accent-foreground: oklch(1 0 0);
+
+  --destructive:       oklch(0.577 0.245 27.325);
+
+  --border:            oklch(0.91 0.012 75);   /* sand-200 */
+  --input:             oklch(0.91 0.012 75);
+  --ring:              oklch(0.55 0.10 196);   /* teal-500 */
+
+  --radius: 0.5rem;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+  }
+
+  html {
+    height: 100%;
+    -webkit-text-size-adjust: 100%;
+    @apply font-sans;
+  }
+
+  body {
+    min-height: 100%;
+    @apply bg-background text-foreground;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-teal-500);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }

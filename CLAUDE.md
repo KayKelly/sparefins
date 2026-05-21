@@ -1,1 +1,91 @@
 @AGENTS.md
+
+# Sparefins — Project Context
+
+## What this is
+Niche marketplace for second-hand surf fins, surfboards, and eventually wetsuits. NZ-focused to start. Core insight: surfers lose a single fin from a set, but surf shops only sell full sets. Sparefins lets people sell spares to someone who needs to complete a set.
+
+The killer feature vs Facebook Marketplace / TradeMe: structured filtering on fin attributes (system, size, position, side). Someone who lost their FCS II right-rear medium can filter to exactly that.
+
+## Stack
+- **Next.js 16 (App Router)** on Vercel
+- **Supabase** (Postgres, Auth, Storage) — cloud project
+- **Tailwind v4** + **shadcn/ui** (Nova theme, neutral base, teal primary override)
+- TypeScript throughout
+
+## Key architectural decisions made
+- Route groups: `(auth)/` for login/callback (no nav shell), `(main)/` for everything else
+- Supabase clients: `lib/supabase/server.ts` (Server Components + Actions), `lib/supabase/browser.ts` (Client Components only). Never import the server client from a `'use client'` file.
+- Server Actions live in `app/actions/` as dedicated `'use server'` files — not inlined in components
+- `middleware.ts` at root handles session refresh on every request (critical — don't remove)
+- DB types are manually maintained in `lib/types/database.ts` until `supabase gen types` is wired up
+- Shared constants (fin systems, sizes, conditions, NZ regions) live in `lib/constants.ts`
+- Image storage: Supabase Storage bucket `listing-images`, path pattern `{userId}/{listingId}/{i}-{timestamp}.{ext}`. Public bucket. RLS in storage schema.
+- No on-platform payments in v1. Buyers message sellers, sort payment themselves.
+- Dark mode not implemented — single light theme for now.
+
+## Colour system
+Tailwind v4 `@theme` with teal/sand brand palette. shadcn variables wired to brand in `:root`:
+- `--primary` → teal-600 (shadcn Button default variant renders teal)
+- `--accent` → teal-500
+- `--background` → sand-50
+- Use `text-muted-foreground` for secondary text (NOT `text-[var(--color-muted)]` — shadcn's `--muted` is a background colour)
+- Use `var(--color-teal-*)` and `var(--color-sand-*)` directly for brand-specific colour
+- `var(--color-surface)` = #fff, `var(--color-accent-hover)` = teal-600 (tokens not in shadcn)
+
+## Auth
+Magic link only (no password). `sendMagicLink` server action → `supabase.auth.signInWithOtp()` → email redirect to `/auth/callback` → `exchangeCodeForSession` → redirect home. Set site URL and redirect URLs in Supabase dashboard > Authentication > URL Configuration.
+
+## Data model key insight
+**Setup (thruster/quad etc.) belongs on the board, not the fin.** A fin doesn't have a setup. The setup concept lives in the search UI, not the data. Side filter includes `side='na'` fins when left/right is selected (symmetric fins can fill either position).
+
+## What's been built
+
+### Infrastructure
+- [x] `supabase/config.toml` — local dev config (needs Docker)
+- [x] `supabase/migrations/001_schema.sql` — all tables: listings, fin_details, board_details, listing_images, messages, wanted_posts
+- [x] `supabase/migrations/002_rls.sql` — full RLS policies + storage bucket creation (idempotent, safe to re-run)
+- [x] `middleware.ts` — Supabase session refresh
+
+### Auth
+- [x] `app/(auth)/login/page.tsx` + `LoginForm.tsx` — magic link form with `useActionState`
+- [x] `app/(auth)/auth/callback/route.ts` — PKCE code exchange
+- [x] `app/actions/auth.ts` — `sendMagicLink` server action
+
+### Navigation & layout
+- [x] `app/(main)/layout.tsx` — sticky nav with Sell CTA, footer
+- [x] `app/(main)/NavUserMenu.tsx` — avatar initials dropdown, sign out
+
+### Home page
+- [x] `app/(main)/page.tsx` — hero, how-it-works, category cards
+
+### Listing creation
+- [x] `app/actions/listings.ts` — `createListing` server action: validates, inserts listings + fin_details, uploads images, redirects to `/fins/{id}`
+- [x] `app/(main)/listings/new/page.tsx` — auth-guarded, redirects to login with `?next=` if unauthenticated
+- [x] `app/(main)/listings/new/FinListingForm.tsx` — full form: fin attributes (system/size/position/side/quantity/brand/model), title auto-generation from attributes, description, condition, price, location region, image upload with client-side preview (uses DataTransfer to inject files into FormData)
+
+### Browse page
+- [x] `app/(main)/fins/page.tsx` — server-rendered, reads `searchParams` (Promise in Next 16), fetches from Supabase with `fin_details!inner` join, side filter includes `na` when left/right selected
+- [x] `app/(main)/fins/FinFilters.tsx` — client component, URL-driven filters via `router.replace`, `useTransition` for pending state
+- [x] `app/(main)/fins/FinCard.tsx` — listing card with cover image, system/size/position/side/condition badges
+- [x] `lib/supabase/storage.ts` — `getListingImageUrl(path)` helper
+
+## What's NOT built yet (next sessions)
+- [ ] `app/(main)/fins/[id]/page.tsx` — listing detail page (SSR for SEO) — **next up**
+- [ ] `app/(main)/listings/[id]/edit/page.tsx` — edit listing
+- [ ] `app/(main)/messages/page.tsx` — message inbox
+- [ ] In-app messaging (send message from listing detail page)
+- [ ] Wanted posts (post + match notifications)
+- [ ] Board listing creation + browse (schema exists, no UI yet)
+- [ ] "My listings" page (manage own listings, mark sold)
+- [ ] Email notification when you receive a message (Supabase webhook → email)
+- [ ] `supabase gen types` wired to CI/npm script
+
+## Conventions
+- No em dashes in user-facing copy
+- `params` and `searchParams` are Promises in Next 16 — always `await` them
+- Server Actions must call `supabase.auth.getUser()` (not `getSession()`) for auth checks
+- Don't use `getSession()` for authorization — it's unverified
+- shadcn components live in `components/ui/`, don't edit them directly
+- Images from Supabase Storage: use `next/image` with the `getListingImageUrl()` helper
+- Migrations are in `supabase/migrations/` as plain SQL. Make them idempotent (`drop policy if exists`, `on conflict do nothing`, `create or replace function`)
