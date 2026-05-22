@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import FinIcon from "@/components/icons/FinIcon";
+import SurfboardIcon from "@/components/icons/SurfboardIcon";
 
 export const metadata: Metadata = {
   title: "Sparefins — Second-hand surf fins and boards in New Zealand",
@@ -83,7 +85,7 @@ export default function HomePage() {
               href="/fins"
               className="group rounded-xl border border-[var(--color-border)] p-6 hover:border-[var(--color-teal-300)] hover:bg-[var(--color-teal-50)]"
             >
-              <div className="mb-3 text-3xl">🏄</div>
+              <FinIcon size={40} className="mb-3 text-[var(--color-teal-500)] group-hover:text-[var(--color-teal-600)]" />
               <h3 className="mb-1 text-lg font-semibold group-hover:text-[var(--color-teal-600)]">
                 Fins
               </h3>
@@ -96,7 +98,7 @@ export default function HomePage() {
               href="/boards"
               className="group rounded-xl border border-[var(--color-border)] p-6 hover:border-[var(--color-teal-300)] hover:bg-[var(--color-teal-50)]"
             >
-              <div className="mb-3 text-3xl">🏊</div>
+              <SurfboardIcon size={40} className="mb-3 text-[var(--color-teal-500)] group-hover:text-[var(--color-teal-600)]" />
               <h3 className="mb-1 text-lg font-semibold group-hover:text-[var(--color-teal-600)]">
                 Boards
               </h3>
