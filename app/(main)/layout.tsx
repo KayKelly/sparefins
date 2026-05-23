@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getUnreadMessageCount } from "@/lib/unread-messages";
 import NavUserMenu from "./NavUserMenu";
 
 export default async function MainLayout({
@@ -11,6 +12,8 @@ export default async function MainLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const unreadCount = await getUnreadMessageCount(user?.id);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -45,7 +48,7 @@ export default async function MainLayout({
             >
               Sell
             </Link>
-            <NavUserMenu user={user} />
+            <NavUserMenu user={user} unreadCount={unreadCount} />
           </div>
         </nav>
       </header>

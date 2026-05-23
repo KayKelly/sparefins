@@ -5,7 +5,7 @@ import { sendMagicLink } from "@/app/actions/auth";
 
 const initialState = { error: null as string | null, sent: false };
 
-export default function LoginForm() {
+export default function LoginForm({ next = "/" }: { next?: string }) {
   const [state, action, pending] = useActionState(sendMagicLink, initialState);
 
   if (state.sent) {
@@ -22,6 +22,7 @@ export default function LoginForm() {
 
   return (
     <form action={action} className="flex flex-col gap-4">
+      <input type="hidden" name="next" value={next} />
       <div>
         <label
           htmlFor="email"

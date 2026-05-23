@@ -8,6 +8,10 @@ interface MagicLinkState {
   sent: boolean;
 }
 
+function str(formData: FormData, key: string): string {
+  return (formData.get(key) as string | null) ?? "";
+}
+
 export async function sendMagicLink(
   _prev: MagicLinkState,
   formData: FormData
@@ -20,12 +24,17 @@ export async function sendMagicLink(
 
   const headerStore = await headers();
   const origin = headerStore.get("origin") ?? "";
+  const next = str(formData, "next").trim() || "/";
+  const callbackUrl = new URL("/auth/callback", origin);
+  if (next.startsWith("/") && !next.startsWith("//")) {
+    callbackUrl.searchParams.set("next", next);
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
+      emailRedirectTo: callbackUrl.toString(),
     },
   });
 

@@ -6,7 +6,13 @@ import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/browser";
 import { useRouter } from "next/navigation";
 
-export default function NavUserMenu({ user }: { user: User | null }) {
+export default function NavUserMenu({
+  user,
+  unreadCount = 0,
+}: {
+  user: User | null;
+  unreadCount?: number;
+}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -60,9 +66,14 @@ export default function NavUserMenu({ user }: { user: User | null }) {
           <Link
             href="/messages"
             onClick={() => setOpen(false)}
-            className="block px-4 py-2 text-sm hover:bg-[var(--color-sand-50)]"
+            className="flex items-center justify-between px-4 py-2 text-sm hover:bg-[var(--color-sand-50)]"
           >
             Messages
+            {unreadCount > 0 && (
+              <span className="rounded-full bg-[var(--color-teal-500)] px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </Link>
           <Link
             href="/listings/new"

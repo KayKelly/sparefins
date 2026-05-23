@@ -7,13 +7,20 @@ export const metadata: Metadata = {
   title: "Sign in",
 };
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user) redirect("/");
+  const { next } = await searchParams;
+  const redirectTo = next?.startsWith("/") && !next.startsWith("//") ? next : "/";
+
+  if (user) redirect(redirectTo);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12">
@@ -29,7 +36,7 @@ export default async function LoginPage() {
             Sign in with your email. We&apos;ll send you a magic link.
           </p>
         </div>
-        <LoginForm />
+        <LoginForm next={redirectTo} />
       </div>
     </div>
   );
