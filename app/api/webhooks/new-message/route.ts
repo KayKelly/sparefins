@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
+import { threadPath } from "@/lib/messages";
 
 // ── Clients ────────────────────────────────────────────────────────────────
 // Service role key is required to read auth.users emails.
@@ -26,6 +27,26 @@ interface MessageRecord {
   to_user: string;
   body: string;
   created_at: string;
+}
+
+/** Canonical origin for links in emails — always www, no trailing slash. */
+function getAppOrigin(): string {
+  const raw =
+    process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://www.sparefins.com";
+  const withProtocol = raw.startsWith("http") ? raw : `https://${raw}`;
+  const url = new URL(withProtocol);
+
+  // Bare domain redirects in browser; email clients can mishandle that redirect.
+  if (url.hostname === "sparefins.com") {
+    url.hostname = "www.sparefins.com";
+  }
+
+  return url.origin;
+}
+
+function listingPath(category: string, listingId: string): string {
+  const segment = category === "board" ? "boards" : "fins";
+  return `/${segment}/${listingId}`;
 }
 
 // ── Handler ────────────────────────────────────────────────────────────────
@@ -81,10 +102,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://sparefins.co.nz";
-    const category = listing.category === "board" ? "boards" : "fins";
-    const listingUrl = `${appUrl}/${category}/${record.listing_id}`;
-    const replyUrl = `${appUrl}/messages/${record.listing_id}/${record.from_user}`;
+    const origin = getAppOrigin();
+    const listingUrl = `${origin}${listingPath(listing.category, record.listing_id)}`;
+    const replyUrl = `${origin}${threadPath(record.listing_id, record.from_user)}`;
 
     // Trim body preview to avoid huge emails
     const preview =
@@ -99,7 +119,7 @@ export async function POST(request: Request) {
     const { error } = await resend.emails.send({
       from:
         process.env.RESEND_FROM_EMAIL ??
-        "Sparefins <notifications@sparefins.co.nz>",
+        "Sparefins <notifications@sparefins.com>",
       to: toEmail,
       subject: `New message about: ${listing.title}`,
       html: emailHtml({
