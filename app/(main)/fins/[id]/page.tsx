@@ -287,7 +287,7 @@ export default async function FinDetailPage({
             </>
           )}
 
-          {!isSold && isOwnListing && <OwnListingNotice />}
+          {!isSold && isOwnListing && <OwnListingNotice listingId={listing.id} />}
           {!isSold && !isOwnListing && user && (
             <ContactSellerForm listingId={listing.id} />
           )}

@@ -18,6 +18,24 @@ export default function NavUserMenu({
   const router = useRouter();
   const supabase = createClient();
 
+  // Re-render the server layout whenever the Supabase auth state changes on the
+  // client (e.g. after a magic-link callback establishes a session). Without
+  // this, the nav can be stuck showing "Sign in" until the next hard navigation.
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (
+        event === "SIGNED_IN" ||
+        event === "SIGNED_OUT" ||
+        event === "TOKEN_REFRESHED"
+      ) {
+        router.refresh();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [router, supabase]);
+
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -76,7 +94,7 @@ export default function NavUserMenu({
             )}
           </Link>
           <Link
-            href="/listings/new"
+            href="/listings/mine"
             onClick={() => setOpen(false)}
             className="block px-4 py-2 text-sm hover:bg-[var(--color-sand-50)]"
           >

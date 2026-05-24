@@ -70,14 +70,29 @@ Magic link only (no password). `sendMagicLink` server action → `supabase.auth.
 - [x] `app/(main)/fins/FinCard.tsx` — listing card with cover image, system/size/position/side/condition badges
 - [x] `lib/supabase/storage.ts` — `getListingImageUrl(path)` helper
 
+### Listing detail
+- [x] `app/(main)/fins/[id]/page.tsx` — SSR detail page: image gallery, fin specs, condition, price, location, `generateMetadata` for SEO + OG
+- [x] `app/(main)/fins/[id]/FinImageGallery.tsx` — client image gallery with thumbnail strip
+- [x] `app/(main)/fins/[id]/ContactSellerForm.tsx` — contact form for buyers; login prompt for guests; own-listing notice for sellers
+- [x] `lib/fin-labels.ts` — display labels + badge colours for all fin enums
+
+### Messaging
+- [x] `app/(main)/messages/page.tsx` — auth-guarded inbox: threads grouped by listing + counterparty, unread badge
+- [x] `app/(main)/messages/[listingId]/[otherUserId]/page.tsx` — single thread: chat bubbles, read-on-load, reply form
+- [x] `app/(main)/messages/[listingId]/[otherUserId]/ReplyForm.tsx` — reply client component
+- [x] `app/actions/messages.ts` — `sendMessage` server action; `markThreadRead` action
+- [x] `lib/messages.ts` — `buildInboxThreads`, `MESSAGE_MAX_LENGTH`, `getUnreadMessageCount`
+
+### Seller tools
+- [x] `app/(main)/listings/mine/page.tsx` — My listings: own listing cards with status badge, edit + mark-sold actions
+- [x] `app/(main)/listings/[id]/edit/page.tsx` — auth-guarded edit page; ownership check
+- [x] `app/(main)/listings/[id]/edit/EditListingForm.tsx` — pre-filled edit form (all fields except images)
+- [x] `app/actions/listings.ts` — `updateListing` (bound id, updates listings + fin_details, revalidates), `markListingStatus` (sold/active toggle)
+
 ## What's NOT built yet (next sessions)
-- [ ] `app/(main)/fins/[id]/page.tsx` — listing detail page (SSR for SEO) — **next up**
-- [ ] `app/(main)/listings/[id]/edit/page.tsx` — edit listing
-- [ ] `app/(main)/messages/page.tsx` — message inbox
-- [ ] In-app messaging (send message from listing detail page)
+- [ ] Image editing on the edit listing form (add/remove photos post-creation)
 - [ ] Wanted posts (post + match notifications)
 - [ ] Board listing creation + browse (schema exists, no UI yet)
-- [ ] "My listings" page (manage own listings, mark sold)
 - [ ] Email notification when you receive a message (Supabase webhook → email)
 - [ ] `supabase gen types` wired to CI/npm script
 
