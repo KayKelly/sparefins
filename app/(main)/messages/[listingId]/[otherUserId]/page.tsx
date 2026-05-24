@@ -3,10 +3,10 @@ import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { markThreadRead } from "@/app/actions/messages";
 import { formatMessageTime, threadPath } from "@/lib/messages";
 import { cn } from "@/lib/utils";
 import ReplyForm from "./ReplyForm";
+import ThreadReadSync from "./ThreadReadSync";
 
 export const metadata: Metadata = {
   title: "Conversation",
@@ -51,7 +51,13 @@ export default async function MessageThreadPage({
 
   if (!isParticipant) notFound();
 
-  await markThreadRead(listingId, otherUserId);
+  await supabase
+    .from("messages")
+    .update({ read_at: new Date().toISOString() })
+    .eq("listing_id", listingId)
+    .eq("to_user", user.id)
+    .eq("from_user", otherUserId)
+    .is("read_at", null);
 
   const { data: messages, error } = await supabase
     .from("messages")
@@ -70,6 +76,7 @@ export default async function MessageThreadPage({
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-2xl flex-col px-4 py-6 sm:px-6">
+      <ThreadReadSync listingId={listingId} otherUserId={otherUserId} />
       <nav className="mb-4">
         <Link
           href="/messages"

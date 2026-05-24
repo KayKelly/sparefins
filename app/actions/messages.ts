@@ -133,22 +133,12 @@ export async function sendMessage(
   return { error: null };
 }
 
-export async function markThreadRead(listingId: string, otherUserId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return;
-
-  await supabase
-    .from("messages")
-    .update({ read_at: new Date().toISOString() })
-    .eq("listing_id", listingId)
-    .eq("to_user", user.id)
-    .eq("from_user", otherUserId)
-    .is("read_at", null);
-
+/** Revalidate inbox + nav badge after messages are marked read on the client. */
+export async function revalidateAfterThreadRead(
+  listingId: string,
+  otherUserId: string
+) {
   revalidatePath("/messages");
   revalidatePath(threadPath(listingId, otherUserId));
+  revalidatePath("/", "layout");
 }

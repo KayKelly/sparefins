@@ -100,11 +100,15 @@ Magic link only (no password). `sendMagicLink` server action → `supabase.auth.
 - [x] `app/(main)/boards/new/BoardListingForm.tsx` — full create form: board type, fin setup/system, length (ft+in), volume, image upload, auto-title
 - [x] `app/actions/boards.ts` — `createBoardListing` server action
 
+### Email notifications
+- [x] `app/api/webhooks/new-message/route.ts` — POST handler: verifies `Authorization: Bearer {WEBHOOK_SECRET}`, looks up listing title + user emails via service role client, sends HTML email via Resend. Returns 200 on all paths to prevent Supabase retry storms.
+- Env vars needed: `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `WEBHOOK_SECRET`, `NEXT_PUBLIC_APP_URL`, `RESEND_FROM_EMAIL`
+- Supabase webhook config: Table `messages`, event `INSERT`, URL `{APP_URL}/api/webhooks/new-message`, header `Authorization: Bearer {WEBHOOK_SECRET}`
+
 ## What's NOT built yet (next sessions)
 - [ ] Edit board listing (no `/listings/[id]/edit` equivalent for boards yet)
 - [ ] Image editing on existing listings (add/remove photos post-creation)
 - [ ] Wanted posts (post + match notifications)
-- [ ] Email notification when you receive a message (Supabase webhook → email)
 - [ ] `supabase gen types` wired to CI/npm script
 
 ## Conventions
