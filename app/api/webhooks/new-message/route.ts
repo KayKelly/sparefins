@@ -35,6 +35,7 @@ export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization");
   const expected = `Bearer ${process.env.WEBHOOK_SECRET}`;
   if (!process.env.WEBHOOK_SECRET || authHeader !== expected) {
+    console.warn("new-message webhook: unauthorized (check WEBHOOK_SECRET in Vercel matches Supabase Authorization header)");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -45,9 +46,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const record = body.record;
+  const record = body.record ?? (body as { new?: MessageRecord }).new;
   if (!record?.listing_id || !record?.to_user || !record?.from_user) {
-    // Not an insert we care about — ack and move on
+    console.warn("new-message webhook: missing record fields", {
+      hasRecord: Boolean(body.record),
+      hasNew: Boolean((body as { new?: MessageRecord }).new),
+    });
     return NextResponse.json({ ok: true });
   }
 
@@ -109,6 +113,8 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Resend error:", error);
+    } else {
+      console.log("new-message webhook: email sent to", toEmail);
     }
   } catch (err) {
     console.error("new-message webhook error:", err);
