@@ -12,7 +12,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-[var(--color-border)]">
+      <section className="relative min-h-[min(520px,72vh)] overflow-hidden border-b border-[var(--color-border)]">
         <Image
           src="/images/hero-raglan.jpg"
           alt="Waves at Raglan, New Zealand"
@@ -23,7 +23,7 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/45 to-black/65" />
 
-        <div className="relative mx-auto max-w-2xl px-4 py-20 text-center sm:px-6 sm:py-28">
+        <div className="relative mx-auto flex min-h-[min(520px,72vh)] max-w-2xl flex-col items-center justify-center px-4 py-16 text-center sm:px-6 sm:py-20">
 
           <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
             Lost a fin?{" "}
