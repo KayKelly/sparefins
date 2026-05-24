@@ -20,6 +20,8 @@ import {
 const selectClass =
   "w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
+const fieldClass = "space-y-2.5";
+
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="mt-1 text-xs text-destructive">{message}</p>;
@@ -27,7 +29,7 @@ function FieldError({ message }: { message?: string }) {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-4 text-base font-semibold text-foreground">{children}</h2>
+    <h2 className="mb-5 text-base font-semibold text-foreground">{children}</h2>
   );
 }
 
@@ -171,7 +173,7 @@ export default function BoardListingForm() {
       <section>
         <SectionHeading>Board details</SectionHeading>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="board_type">Board type</Label>
             <select
               id="board_type"
@@ -190,7 +192,7 @@ export default function BoardListingForm() {
             <FieldError message={state.errors.board_type} />
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="fin_setup">Fin setup</Label>
             <select
               id="fin_setup"
@@ -208,7 +210,7 @@ export default function BoardListingForm() {
             <FieldError message={state.errors.fin_setup} />
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="fin_system">Fin system</Label>
             <select
               id="fin_system"
@@ -226,7 +228,7 @@ export default function BoardListingForm() {
             <FieldError message={state.errors.fin_system} />
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label>Length</Label>
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -264,7 +266,7 @@ export default function BoardListingForm() {
             <FieldError message={state.errors.length_inches_rem} />
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="volume_litres">Volume</Label>
             <div className="relative">
               <Input
@@ -288,7 +290,7 @@ export default function BoardListingForm() {
       <section>
         <SectionHeading>Listing details</SectionHeading>
         <div className="grid gap-4">
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="title">
               Title <span className="text-destructive">*</span>
             </Label>
@@ -311,7 +313,7 @@ export default function BoardListingForm() {
             )}
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
@@ -322,7 +324,7 @@ export default function BoardListingForm() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
+            <div className={fieldClass}>
               <Label htmlFor="condition">
                 Condition <span className="text-destructive">*</span>
               </Label>
@@ -343,7 +345,7 @@ export default function BoardListingForm() {
               <FieldError message={state.errors.condition} />
             </div>
 
-            <div>
+            <div className={fieldClass}>
               <Label htmlFor="price_nzd">Price (NZD)</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -371,7 +373,7 @@ export default function BoardListingForm() {
       {/* ── Location ─────────────────────────────────────────────────────── */}
       <section>
         <SectionHeading>Location</SectionHeading>
-        <div className="max-w-xs">
+        <div className={`max-w-xs ${fieldClass}`}>
           <Label htmlFor="location_label">
             Region <span className="text-destructive">*</span>
           </Label>

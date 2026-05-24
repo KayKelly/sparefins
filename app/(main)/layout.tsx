@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { getUnreadMessageCount } from "@/lib/unread-messages";
 import NavUserMenu from "./NavUserMenu";
+import NavSellMenu from "./NavSellMenu";
 
 export default async function MainLayout({
   children,
@@ -21,9 +23,16 @@ export default async function MainLayout({
         <nav className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4 sm:px-6">
           <Link
             href="/"
-            className="mr-2 text-lg font-semibold tracking-tight text-[var(--color-teal-600)] hover:text-[var(--color-teal-500)]"
+            className="mr-2 flex items-center gap-2 text-[var(--color-teal-600)] hover:text-[var(--color-teal-500)]"
           >
-            Sparefins
+            <Image
+              src="/logo.png"
+              alt=""
+              width={28}
+              height={28}
+              className="h-7 w-7 object-contain"
+            />
+            <span className="text-lg font-semibold tracking-tight">Sparefins</span>
           </Link>
 
           <div className="flex items-center gap-1 text-sm">
@@ -42,12 +51,7 @@ export default async function MainLayout({
           </div>
 
           <div className="ml-auto flex items-center gap-3">
-            <Link
-              href="/listings/new"
-              className="rounded-md bg-[var(--color-accent)] px-3.5 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
-            >
-              Sell
-            </Link>
+            <NavSellMenu />
             <NavUserMenu user={user} unreadCount={unreadCount} />
           </div>
         </nav>

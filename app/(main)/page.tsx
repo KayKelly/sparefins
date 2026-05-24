@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import FinIcon from "@/components/icons/FinIcon";
 import SurfboardIcon from "@/components/icons/SurfboardIcon";
@@ -11,16 +12,28 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-16 sm:px-6 sm:py-24">
-        <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-[var(--color-foreground)] sm:text-5xl">
-            Find the exact fin{" "}
-            <span className="text-[var(--color-teal-500)]">you&apos;re missing.</span>
+      <section className="relative overflow-hidden border-b border-[var(--color-border)]">
+        <Image
+          src="/images/hero-raglan.jpg"
+          alt="Waves at Raglan, New Zealand"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/45 to-black/65" />
+
+        <div className="relative mx-auto max-w-2xl px-4 py-20 text-center sm:px-6 sm:py-28">
+
+          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+            Lost a fin?{" "}
+            <span className="text-[var(--color-teal-300)]">
+              Find the replacement you need.
+            </span>
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Lost a fin from your set? New Zealand&apos;s marketplace for second-hand
-            fins and boards. Filter by system, size, and position to find exactly
-            what you need.
+          <p className="mt-4 text-lg text-white/85">
+            New Zealand&apos;s marketplace for second-hand fins and boards.
+            Filter by system, size, and position to find exactly what you need.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link
@@ -31,11 +44,12 @@ export default function HomePage() {
             </Link>
             <Link
               href="/listings/new"
-              className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3 text-base font-semibold text-[var(--color-foreground)] hover:bg-[var(--color-sand-100)] sm:w-auto"
+              className="w-full rounded-lg border border-white/40 bg-white/10 px-6 py-3 text-base font-semibold text-white backdrop-blur-sm hover:bg-white/20 sm:w-auto"
             >
               Sell a fin
             </Link>
           </div>
+          <p className="mt-6 text-xs text-white/50">Photo: <Link href="https://www.instagram.com/surfgirlnz/" target="_blank">@surfgirlnz</Link></p>
         </div>
       </section>
 

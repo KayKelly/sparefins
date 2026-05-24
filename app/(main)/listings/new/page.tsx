@@ -19,7 +19,7 @@ export default async function NewListingPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <div className="mb-8">
+      <div className="mb-10">
         <h1 className="text-2xl font-bold">Sell a fin</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           The more attributes you fill in, the easier it is for the right buyer

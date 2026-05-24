@@ -13,8 +13,12 @@ export const metadata: Metadata = {
   description:
     "Buy and sell second-hand surf fins and boards in New Zealand. Find the exact fin you need: FCS, FCS II, Futures. Filter by system, size, position and side.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://sparefins.co.nz"
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://www.sparefins.com"
   ),
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -74,7 +74,7 @@ export default async function EditListingPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <div className="mb-8">
+      <div className="mb-10">
         <h1 className="text-2xl font-bold tracking-tight">Edit listing</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Update your fin listing details.

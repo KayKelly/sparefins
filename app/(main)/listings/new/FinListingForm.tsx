@@ -21,6 +21,8 @@ import {
 const selectClass =
   "w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
+const fieldClass = "space-y-2.5";
+
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="mt-1 text-xs text-destructive">{message}</p>;
@@ -28,7 +30,7 @@ function FieldError({ message }: { message?: string }) {
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-4 text-base font-semibold text-foreground">{children}</h2>
+    <h2 className="mb-5 text-base font-semibold text-foreground">{children}</h2>
   );
 }
 
@@ -204,7 +206,7 @@ export default function FinListingForm() {
       <section>
         <SectionHeading>Fin details</SectionHeading>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="system">
               Fin system <span className="text-destructive">*</span>
             </Label>
@@ -226,7 +228,7 @@ export default function FinListingForm() {
             <FieldError message={state.errors.system} />
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="size_bucket">Size</Label>
             <select
               id="size_bucket"
@@ -245,7 +247,7 @@ export default function FinListingForm() {
             <FieldError message={state.errors.size_bucket} />
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="position">Position</Label>
             <select
               id="position"
@@ -264,7 +266,7 @@ export default function FinListingForm() {
             <FieldError message={state.errors.position} />
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="side">Side</Label>
             <select
               id="side"
@@ -285,17 +287,17 @@ export default function FinListingForm() {
             </p>
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="brand">Brand</Label>
             <Input id="brand" name="brand" placeholder="e.g. FCS, Futures, Captain Fin" />
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="model">Model</Label>
             <Input id="model" name="model" placeholder="e.g. Performer PC, K2.1" />
           </div>
 
-          <div className="sm:col-span-2">
+          <div className={`sm:col-span-2 ${fieldClass}`}>
             <Label htmlFor="quantity">Quantity</Label>
             <select id="quantity" name="quantity" className={selectClass} defaultValue="1">
               {[1, 2, 3, 4, 5].map((n) => (
@@ -315,7 +317,7 @@ export default function FinListingForm() {
       <section>
         <SectionHeading>Listing details</SectionHeading>
         <div className="grid gap-4">
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="title">
               Title <span className="text-destructive">*</span>
             </Label>
@@ -339,7 +341,7 @@ export default function FinListingForm() {
             )}
           </div>
 
-          <div>
+          <div className={fieldClass}>
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
@@ -350,7 +352,7 @@ export default function FinListingForm() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
+            <div className={fieldClass}>
               <Label htmlFor="condition">
                 Condition <span className="text-destructive">*</span>
               </Label>
@@ -371,7 +373,7 @@ export default function FinListingForm() {
               <FieldError message={state.errors.condition} />
             </div>
 
-            <div>
+            <div className={fieldClass}>
               <Label htmlFor="price_nzd">Price (NZD)</Label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
@@ -399,7 +401,7 @@ export default function FinListingForm() {
       {/* ── Location ─────────────────────────────────────────────────────── */}
       <section>
         <SectionHeading>Location</SectionHeading>
-        <div className="max-w-xs">
+        <div className={`max-w-xs ${fieldClass}`}>
           <Label htmlFor="location_label">
             Region <span className="text-destructive">*</span>
           </Label>
