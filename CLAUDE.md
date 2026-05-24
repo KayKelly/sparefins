@@ -84,15 +84,26 @@ Magic link only (no password). `sendMagicLink` server action → `supabase.auth.
 - [x] `lib/messages.ts` — `buildInboxThreads`, `MESSAGE_MAX_LENGTH`, `getUnreadMessageCount`
 
 ### Seller tools
-- [x] `app/(main)/listings/mine/page.tsx` — My listings: own listing cards with status badge, edit + mark-sold actions
-- [x] `app/(main)/listings/[id]/edit/page.tsx` — auth-guarded edit page; ownership check
+- [x] `app/(main)/listings/mine/page.tsx` — My listings: own listing cards (fins + boards) with status badge, edit + mark-sold actions
+- [x] `app/(main)/listings/[id]/edit/page.tsx` — auth-guarded edit page; ownership check (fins only)
 - [x] `app/(main)/listings/[id]/edit/EditListingForm.tsx` — pre-filled edit form (all fields except images)
 - [x] `app/actions/listings.ts` — `updateListing` (bound id, updates listings + fin_details, revalidates), `markListingStatus` (sold/active toggle)
 
+### Board listings
+- [x] `lib/board-labels.ts` — display labels + badge colours for board type, fin setup, fin system; `formatLength` helper (inches → feet'in")
+- [x] `lib/constants.ts` — `BOARD_TYPES`, `BOARD_FIN_SETUPS`, `BOARD_FIN_SYSTEMS` added
+- [x] `app/(main)/boards/page.tsx` — SSR browse with filters (board type, fin setup, fin system, condition, location)
+- [x] `app/(main)/boards/BoardCard.tsx` — card with type badge, length overlay, fin setup + volume chips
+- [x] `app/(main)/boards/BoardFilters.tsx` — client filter selects via URL params
+- [x] `app/(main)/boards/[id]/page.tsx` — SSR detail page: image gallery, specs, contact seller, `generateMetadata`
+- [x] `app/(main)/boards/new/page.tsx` — auth-guarded create page
+- [x] `app/(main)/boards/new/BoardListingForm.tsx` — full create form: board type, fin setup/system, length (ft+in), volume, image upload, auto-title
+- [x] `app/actions/boards.ts` — `createBoardListing` server action
+
 ## What's NOT built yet (next sessions)
-- [ ] Image editing on the edit listing form (add/remove photos post-creation)
+- [ ] Edit board listing (no `/listings/[id]/edit` equivalent for boards yet)
+- [ ] Image editing on existing listings (add/remove photos post-creation)
 - [ ] Wanted posts (post + match notifications)
-- [ ] Board listing creation + browse (schema exists, no UI yet)
 - [ ] Email notification when you receive a message (Supabase webhook → email)
 - [ ] `supabase gen types` wired to CI/npm script
 

@@ -57,3 +57,30 @@ export const NZ_REGIONS = [
 ] as const
 
 export const MAX_IMAGES = 5
+
+export const BOARD_TYPES = [
+  { value: "shortboard", label: "Shortboard" },
+  { value: "fish", label: "Fish" },
+  { value: "mid_length", label: "Mid-length" },
+  { value: "longboard", label: "Longboard" },
+  { value: "gun", label: "Gun" },
+  { value: "sup", label: "SUP" },
+  { value: "other", label: "Other" },
+] as const
+
+export const BOARD_FIN_SETUPS = [
+  { value: "single", label: "Single" },
+  { value: "twin", label: "Twin" },
+  { value: "thruster", label: "Thruster" },
+  { value: "quad", label: "Quad" },
+  { value: "two_plus_one", label: "2+1" },
+  { value: "five_fin", label: "Five fin" },
+] as const
+
+export const BOARD_FIN_SYSTEMS = [
+  { value: "fcs", label: "FCS" },
+  { value: "fcs2", label: "FCS II" },
+  { value: "futures", label: "Futures" },
+  { value: "glassed_in", label: "Glassed in" },
+  { value: "other", label: "Other" },
+] as const

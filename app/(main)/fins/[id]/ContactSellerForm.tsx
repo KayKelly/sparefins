@@ -71,7 +71,14 @@ export function ContactSellerPrompt({ loginNext }: { loginNext: string }) {
   );
 }
 
-export function OwnListingNotice({ listingId }: { listingId: string }) {
+export function OwnListingNotice({
+  listingId,
+  editHref,
+}: {
+  listingId: string;
+  editHref?: string;
+}) {
+  void listingId;
   return (
     <div className="mt-8 rounded-xl border border-[var(--color-teal-200)] bg-[var(--color-teal-50)] p-5">
       <p className="text-sm font-medium text-[var(--color-teal-700)]">
@@ -81,12 +88,14 @@ export function OwnListingNotice({ listingId }: { listingId: string }) {
         Check your inbox for messages from interested buyers.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link
-          href={`/listings/${listingId}/edit`}
-          className="inline-flex h-8 items-center justify-center rounded-lg bg-[var(--color-accent)] px-3 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
-        >
-          Edit listing
-        </Link>
+        {editHref && (
+          <Link
+            href={editHref}
+            className="inline-flex h-8 items-center justify-center rounded-lg bg-[var(--color-accent)] px-3 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
+          >
+            Edit listing
+          </Link>
+        )}
         <Link
           href="/messages"
           className="inline-flex h-8 items-center justify-center rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted"

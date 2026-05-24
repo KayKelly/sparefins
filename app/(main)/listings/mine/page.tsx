@@ -6,7 +6,14 @@ import { createClient } from "@/lib/supabase/server";
 import { getListingImageUrl } from "@/lib/supabase/storage";
 import { markListingStatus } from "@/app/actions/listings";
 import { SYSTEM_LABELS } from "@/lib/fin-labels";
-import type { FinSystem, ListingCondition, ListingStatus } from "@/lib/types/database";
+import { BOARD_TYPE_LABELS } from "@/lib/board-labels";
+import type {
+  FinSystem,
+  BoardType,
+  ListingCategory,
+  ListingCondition,
+  ListingStatus,
+} from "@/lib/types/database";
 
 export const metadata: Metadata = { title: "My listings" };
 
@@ -15,11 +22,13 @@ export const metadata: Metadata = { title: "My listings" };
 interface MyListing {
   id: string;
   title: string;
+  category: ListingCategory;
   price_nzd: number | null;
   condition: ListingCondition;
   status: ListingStatus;
   created_at: string;
   fin_details: { system: FinSystem } | null;
+  board_details: { board_type: BoardType | null } | null;
   cover_path: string | null;
 }
 
@@ -94,6 +103,18 @@ function ListingCard({ listing }: { listing: MyListing }) {
     ? getListingImageUrl(listing.cover_path)
     : null;
 
+  const isFin = listing.category === "fin";
+  const detailHref = isFin ? `/fins/${listing.id}` : `/boards/${listing.id}`;
+  const editHref = isFin ? `/listings/${listing.id}/edit` : null;
+
+  const typeLabel = isFin
+    ? listing.fin_details
+      ? SYSTEM_LABELS[listing.fin_details.system]
+      : "Fin"
+    : listing.board_details?.board_type
+      ? BOARD_TYPE_LABELS[listing.board_details.board_type]
+      : "Board";
+
   return (
     <div className="flex gap-4 rounded-xl border border-border bg-card p-4">
       {/* Thumbnail */}
@@ -108,7 +129,7 @@ function ListingCard({ listing }: { listing: MyListing }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-2xl text-muted-foreground">
-            🏄
+            {isFin ? "🏄" : "🏄‍♂️"}
           </div>
         )}
       </div>
@@ -118,15 +139,13 @@ function ListingCard({ listing }: { listing: MyListing }) {
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="min-w-0">
             <Link
-              href={`/fins/${listing.id}`}
+              href={detailHref}
               className="block truncate font-semibold hover:text-[var(--color-teal-600)]"
             >
               {listing.title}
             </Link>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              {listing.fin_details
-                ? SYSTEM_LABELS[listing.fin_details.system]
-                : "Fin"}
+              {typeLabel}
               {listing.price_nzd != null
                 ? ` · $${listing.price_nzd.toFixed(0)}`
                 : " · Make an offer"}
@@ -143,12 +162,14 @@ function ListingCard({ listing }: { listing: MyListing }) {
 
         {/* Actions */}
         <div className="mt-3 flex flex-wrap gap-2">
-          <Link
-            href={`/listings/${listing.id}/edit`}
-            className="rounded-md bg-[var(--color-accent)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
-          >
-            Edit
-          </Link>
+          {editHref && (
+            <Link
+              href={editHref}
+              className="rounded-md bg-[var(--color-accent)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
+            >
+              Edit
+            </Link>
+          )}
           <StatusToggleForm
             listingId={listing.id}
             currentStatus={listing.status}
@@ -173,29 +194,34 @@ export default async function MyListingsPage() {
     .from("listings")
     .select(
       `
-      id, title, price_nzd, condition, status, created_at,
+      id, title, category, price_nzd, condition, status, created_at,
       fin_details(system),
+      board_details(board_type),
       listing_images(storage_path, display_order)
     `
     )
     .eq("user_id", user.id)
-    .eq("category", "fin")
+    .in("category", ["fin", "board"])
     .order("created_at", { ascending: false });
 
   const listings: MyListing[] = (rows ?? []).map((row) => {
     const finDetails = row.fin_details;
     const fin = Array.isArray(finDetails) ? finDetails[0] : finDetails;
+    const boardDetails = row.board_details;
+    const board = Array.isArray(boardDetails) ? boardDetails[0] : boardDetails;
     const images = [...(row.listing_images ?? [])].sort(
       (a, b) => a.display_order - b.display_order
     );
     return {
       id: row.id,
       title: row.title,
+      category: row.category as ListingCategory,
       price_nzd: row.price_nzd,
       condition: row.condition,
       status: row.status,
       created_at: row.created_at,
       fin_details: fin ?? null,
+      board_details: board ?? null,
       cover_path: images[0]?.storage_path ?? null,
     };
   });
@@ -204,23 +230,39 @@ export default async function MyListingsPage() {
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">My listings</h1>
-        <Link
-          href="/listings/new"
-          className="rounded-md bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
-        >
-          + New listing
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/listings/new"
+            className="rounded-md bg-[var(--color-accent)] px-3 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
+          >
+            + List a fin
+          </Link>
+          <Link
+            href="/boards/new"
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm font-medium hover:bg-muted"
+          >
+            + List a board
+          </Link>
+        </div>
       </div>
 
       {listings.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-16 text-center">
           <p className="text-muted-foreground">You have no listings yet.</p>
-          <Link
-            href="/listings/new"
-            className="mt-4 inline-block rounded-md bg-[var(--color-accent)] px-5 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
-          >
-            List a fin
-          </Link>
+          <div className="mt-4 flex justify-center gap-2">
+            <Link
+              href="/listings/new"
+              className="rounded-md bg-[var(--color-accent)] px-5 py-2 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
+            >
+              List a fin
+            </Link>
+            <Link
+              href="/boards/new"
+              className="rounded-md border border-border bg-background px-5 py-2 text-sm font-medium hover:bg-muted"
+            >
+              List a board
+            </Link>
+          </div>
         </div>
       ) : (
         <div className="space-y-3">
