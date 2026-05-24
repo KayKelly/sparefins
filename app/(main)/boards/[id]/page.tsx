@@ -286,7 +286,10 @@ export default async function BoardDetailPage({
           )}
 
           {!isSold && isOwnListing && (
-            <OwnListingNotice listingId={listing.id} />
+            <OwnListingNotice
+              listingId={listing.id}
+              editHref={`/listings/${listing.id}/edit`}
+            />
           )}
           {!isSold && !isOwnListing && user && (
             <ContactSellerForm listingId={listing.id} />

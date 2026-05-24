@@ -279,6 +279,13 @@ export async function markListingStatus(
   const status = formData.get("status") as string;
   if (!["active", "sold", "paused"].includes(status)) return;
 
+  const { data: listing } = await supabase
+    .from("listings")
+    .select("category")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
   await supabase
     .from("listings")
     .update({ status })
@@ -286,6 +293,11 @@ export async function markListingStatus(
     .eq("user_id", user.id);
 
   revalidatePath("/listings/mine");
-  revalidatePath(`/fins/${id}`);
-  revalidatePath("/fins");
+  if (listing?.category === "board") {
+    revalidatePath(`/boards/${id}`);
+    revalidatePath("/boards");
+  } else {
+    revalidatePath(`/fins/${id}`);
+    revalidatePath("/fins");
+  }
 }

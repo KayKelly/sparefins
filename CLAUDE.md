@@ -85,9 +85,11 @@ Magic link only (no password). `sendMagicLink` server action → `supabase.auth.
 
 ### Seller tools
 - [x] `app/(main)/listings/mine/page.tsx` — My listings: own listing cards (fins + boards) with status badge, edit + mark-sold actions
-- [x] `app/(main)/listings/[id]/edit/page.tsx` — auth-guarded edit page; ownership check (fins only)
-- [x] `app/(main)/listings/[id]/edit/EditListingForm.tsx` — pre-filled edit form (all fields except images)
-- [x] `app/actions/listings.ts` — `updateListing` (bound id, updates listings + fin_details, revalidates), `markListingStatus` (sold/active toggle)
+- [x] `app/(main)/listings/[id]/edit/page.tsx` — auth-guarded edit page; ownership check (fins + boards)
+- [x] `app/(main)/listings/[id]/edit/EditListingForm.tsx` — pre-filled fin edit form (all fields except images)
+- [x] `app/(main)/listings/[id]/edit/EditBoardListingForm.tsx` — pre-filled board edit form (all fields except images)
+- [x] `app/actions/listings.ts` — `updateListing`, `markListingStatus` (sold/active toggle, revalidates fins + boards)
+- [x] `app/actions/boards.ts` — `createBoardListing`, `updateBoardListing`
 
 ### Board listings
 - [x] `lib/board-labels.ts` — display labels + badge colours for board type, fin setup, fin system; `formatLength` helper (inches → feet'in")
@@ -106,7 +108,6 @@ Magic link only (no password). `sendMagicLink` server action → `supabase.auth.
 - Supabase webhook config: Table `messages`, event `INSERT`, URL `{APP_URL}/api/webhooks/new-message`, header `Authorization: Bearer {WEBHOOK_SECRET}`
 
 ## What's NOT built yet (next sessions)
-- [ ] Edit board listing (no `/listings/[id]/edit` equivalent for boards yet)
 - [ ] Image editing on existing listings (add/remove photos post-creation)
 - [ ] Wanted posts (post + match notifications)
 - [ ] `supabase gen types` wired to CI/npm script

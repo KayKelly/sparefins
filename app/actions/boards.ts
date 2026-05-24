@@ -14,6 +14,10 @@ export interface CreateBoardListingState {
   errors: Record<string, string>;
 }
 
+export interface UpdateBoardListingState {
+  errors: Record<string, string>;
+}
+
 const BOARD_TYPE_VALUES = BOARD_TYPES.map((t) => t.value);
 const FIN_SETUP_VALUES = BOARD_FIN_SETUPS.map((s) => s.value);
 const FIN_SYSTEM_VALUES = BOARD_FIN_SYSTEMS.map((s) => s.value);
@@ -157,4 +161,119 @@ export async function createBoardListing(
   // ── Done ──────────────────────────────────────────────────────────────────
   revalidatePath("/boards");
   redirect(`/boards/${listing.id}`);
+}
+
+// ── Update board listing ───────────────────────────────────────────────────
+// Usage: updateBoardListing.bind(null, id)
+
+export async function updateBoardListing(
+  id: string,
+  _prev: UpdateBoardListingState,
+  formData: FormData
+): Promise<UpdateBoardListingState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { errors: { _form: "You must be signed in to edit a listing." } };
+  }
+
+  const { data: existing } = await supabase
+    .from("listings")
+    .select("user_id, category")
+    .eq("id", id)
+    .single();
+
+  if (!existing || existing.user_id !== user.id || existing.category !== "board") {
+    return { errors: { _form: "Listing not found or you don't have permission to edit it." } };
+  }
+
+  const title = str(formData, "title").trim();
+  const description = str(formData, "description").trim() || null;
+  const priceRaw = str(formData, "price_nzd").trim();
+  const condition = str(formData, "condition");
+  const locationLabel = str(formData, "location_label");
+
+  const boardType = str(formData, "board_type") || null;
+  const finSetup = str(formData, "fin_setup") || null;
+  const finSystem = str(formData, "fin_system") || null;
+
+  const feetRaw = str(formData, "length_feet").trim();
+  const inchesRaw = str(formData, "length_inches_rem").trim();
+  const volumeRaw = str(formData, "volume_litres").trim();
+
+  const errors: Record<string, string> = {};
+
+  if (!title) errors.title = "Title is required.";
+  if (!condition || !CONDITION_VALUES.includes(condition as never))
+    errors.condition = "Select a condition.";
+  if (!locationLabel) errors.location_label = "Select a region.";
+
+  if (boardType && !BOARD_TYPE_VALUES.includes(boardType as never))
+    errors.board_type = "Invalid board type.";
+  if (finSetup && !FIN_SETUP_VALUES.includes(finSetup as never))
+    errors.fin_setup = "Invalid fin setup.";
+  if (finSystem && !FIN_SYSTEM_VALUES.includes(finSystem as never))
+    errors.fin_system = "Invalid fin system.";
+
+  const priceNzd = priceRaw ? parseFloat(priceRaw) : null;
+  if (priceRaw && (isNaN(priceNzd!) || priceNzd! < 0))
+    errors.price_nzd = "Enter a valid price.";
+
+  let lengthInches: number | null = null;
+  if (feetRaw) {
+    const feet = parseInt(feetRaw, 10);
+    const rem = inchesRaw ? parseInt(inchesRaw, 10) : 0;
+    if (isNaN(feet) || feet < 0 || feet > 20)
+      errors.length_feet = "Enter a valid length (feet).";
+    else if (isNaN(rem) || rem < 0 || rem > 11)
+      errors.length_inches_rem = "Inches must be 0–11.";
+    else lengthInches = feet * 12 + rem;
+  }
+
+  const volumeLitres = volumeRaw ? parseFloat(volumeRaw) : null;
+  if (volumeRaw && (isNaN(volumeLitres!) || volumeLitres! <= 0))
+    errors.volume_litres = "Enter a valid volume.";
+
+  if (Object.keys(errors).length > 0) return { errors };
+
+  const { error: listingError } = await supabase
+    .from("listings")
+    .update({
+      title,
+      description,
+      price_nzd: priceNzd,
+      condition,
+      location_label: locationLabel,
+    })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (listingError) {
+    console.error("listings update error:", listingError);
+    return { errors: { _form: "Failed to update listing. Please try again." } };
+  }
+
+  const { error: boardError } = await supabase
+    .from("board_details")
+    .update({
+      board_type: boardType,
+      fin_setup: finSetup,
+      fin_system: finSystem,
+      length_inches: lengthInches,
+      volume_litres: volumeLitres,
+    })
+    .eq("listing_id", id);
+
+  if (boardError) {
+    console.error("board_details update error:", boardError);
+    return { errors: { _form: "Failed to update board details. Please try again." } };
+  }
+
+  revalidatePath(`/boards/${id}`);
+  revalidatePath("/boards");
+  revalidatePath("/listings/mine");
+  redirect(`/boards/${id}`);
 }

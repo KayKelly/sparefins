@@ -105,7 +105,7 @@ function ListingCard({ listing }: { listing: MyListing }) {
 
   const isFin = listing.category === "fin";
   const detailHref = isFin ? `/fins/${listing.id}` : `/boards/${listing.id}`;
-  const editHref = isFin ? `/listings/${listing.id}/edit` : null;
+  const editHref = `/listings/${listing.id}/edit`;
 
   const typeLabel = isFin
     ? listing.fin_details
@@ -162,14 +162,12 @@ function ListingCard({ listing }: { listing: MyListing }) {
 
         {/* Actions */}
         <div className="mt-3 flex flex-wrap gap-2">
-          {editHref && (
-            <Link
-              href={editHref}
-              className="rounded-md bg-[var(--color-accent)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
-            >
-              Edit
-            </Link>
-          )}
+          <Link
+            href={editHref}
+            className="rounded-md bg-[var(--color-accent)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-accent-hover)]"
+          >
+            Edit
+          </Link>
           <StatusToggleForm
             listingId={listing.id}
             currentStatus={listing.status}

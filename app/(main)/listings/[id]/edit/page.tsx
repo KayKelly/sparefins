@@ -6,29 +6,15 @@ import type {
   FinSizeBucket,
   FinPosition,
   FinSide,
+  BoardType,
+  BoardFinSetup,
+  BoardFinSystem,
   ListingCondition,
 } from "@/lib/types/database";
 import EditListingForm from "./EditListingForm";
+import EditBoardListingForm from "./EditBoardListingForm";
 
 export const metadata: Metadata = { title: "Edit listing" };
-
-interface ListingForEdit {
-  id: string;
-  title: string;
-  description: string | null;
-  price_nzd: number | null;
-  condition: ListingCondition;
-  location_label: string | null;
-  fin_details: {
-    system: FinSystem;
-    size_bucket: FinSizeBucket | null;
-    position: FinPosition | null;
-    side: FinSide;
-    quantity: number;
-    brand: string | null;
-    model: string | null;
-  };
-}
 
 export default async function EditListingPage({
   params,
@@ -47,40 +33,87 @@ export default async function EditListingPage({
     .from("listings")
     .select(
       `
-      id, title, description, price_nzd, condition, location_label, user_id,
-      fin_details!inner(system, size_bucket, position, side, quantity, brand, model)
+      id, title, description, price_nzd, condition, location_label, user_id, category,
+      fin_details(system, size_bucket, position, side, quantity, brand, model),
+      board_details(board_type, fin_setup, fin_system, length_inches, volume_litres)
     `
     )
     .eq("id", id)
-    .eq("category", "fin")
+    .in("category", ["fin", "board"])
     .single();
 
   if (error || !data) notFound();
   if (data.user_id !== user.id) notFound();
 
-  const finDetails = data.fin_details;
-  const fin = Array.isArray(finDetails) ? finDetails[0] : finDetails;
-  if (!fin) notFound();
+  if (data.category === "fin") {
+    const finDetails = data.fin_details;
+    const fin = Array.isArray(finDetails) ? finDetails[0] : finDetails;
+    if (!fin) notFound();
 
-  const listing: ListingForEdit = {
-    id: data.id,
-    title: data.title,
-    description: data.description,
-    price_nzd: data.price_nzd,
-    condition: data.condition,
-    location_label: data.location_label,
-    fin_details: fin,
-  };
-
-  return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <div className="mb-10">
-        <h1 className="text-2xl font-bold tracking-tight">Edit listing</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Update your fin listing details.
-        </p>
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+        <div className="mb-10">
+          <h1 className="text-2xl font-bold tracking-tight">Edit listing</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Update your fin listing details.
+          </p>
+        </div>
+        <EditListingForm
+          listing={{
+            id: data.id,
+            title: data.title,
+            description: data.description,
+            price_nzd: data.price_nzd,
+            condition: data.condition as ListingCondition,
+            location_label: data.location_label,
+            fin_details: {
+              system: fin.system as FinSystem,
+              size_bucket: fin.size_bucket as FinSizeBucket | null,
+              position: fin.position as FinPosition | null,
+              side: fin.side as FinSide,
+              quantity: fin.quantity,
+              brand: fin.brand,
+              model: fin.model,
+            },
+          }}
+        />
       </div>
-      <EditListingForm listing={listing} />
-    </div>
-  );
+    );
+  }
+
+  if (data.category === "board") {
+    const boardDetails = data.board_details;
+    const board = Array.isArray(boardDetails) ? boardDetails[0] : boardDetails;
+    if (!board) notFound();
+
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+        <div className="mb-10">
+          <h1 className="text-2xl font-bold tracking-tight">Edit listing</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Update your board listing details.
+          </p>
+        </div>
+        <EditBoardListingForm
+          listing={{
+            id: data.id,
+            title: data.title,
+            description: data.description,
+            price_nzd: data.price_nzd,
+            condition: data.condition as ListingCondition,
+            location_label: data.location_label,
+            board_details: {
+              board_type: board.board_type as BoardType | null,
+              fin_setup: board.fin_setup as BoardFinSetup | null,
+              fin_system: board.fin_system as BoardFinSystem | null,
+              length_inches: board.length_inches,
+              volume_litres: board.volume_litres,
+            },
+          }}
+        />
+      </div>
+    );
+  }
+
+  notFound();
 }
